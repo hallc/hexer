@@ -42,17 +42,20 @@ class HexagonDecorator:
 		drawing.add(polygon)
 
 class CrowsFootDecorator:
-	def __init__(self, hexagon_properties):
-		dash = hexagon_properties.edge * .25
-		gap = hexagon_properties.edge - dash*2
-		self._dash_array = '{},{},{}'.format(dash,gap,dash)
+	def __init__(self):
+		self._dash = .25
+		self._gap = 1 - self._dash
 
 	def draw(self, drawing, hexagon):
 		for index, vertex in enumerate(hexagon.verticies):
 			prev_vertex = hexagon.verticies[int((index-1)%6)]
-			line = drawing.line(start=vertex, end=prev_vertex)
-			line['stroke-dasharray'] = self._dash_array
-			drawing.add(line)
+			self._draw_dash(drawing, vertex, prev_vertex)
+			self._draw_dash(drawing, prev_vertex, vertex)
+
+	def _draw_dash(self, drawing, point_a, point_b):
+		dash_end = (point_a[0]*self._gap + point_b[0]*self._dash, point_a[1]*self._gap + point_b[1]*self._dash)
+		line = drawing.line(start=point_a, end=dash_end)
+		drawing.add(line)
 
 class HexagonalGrid:
 	def __init__(self, document_properties, hexagon_properties, decorator):
@@ -81,7 +84,7 @@ class HexagonalGrid:
 
 	def draw(self):
 		drawing = Drawing(size=(self._document_properties.width, self._document_properties.height))
-		drawing.add(Style(content='* { fill: none; stroke: #000000; stroke-width: 1 }'))
+		drawing.add(Style(content='* { fill: none; stroke: #000000; stroke-linecap: round; stroke-width: 1 }'))
 
 		for column, x in enumerate(self._columns()):
 			for y in self._rows(column):
@@ -102,7 +105,7 @@ def main():
 
 	document_properties = DocumentProperties.in_inches(args.width, args.height, args.dpi)
 	hexagon_properties = HexagonProperties.in_inches(args.hex_size, args.dpi)
-	decorator = HexagonDecorator() if args.style == 'hexes' else CrowsFootDecorator(hexagon_properties)
+	decorator = HexagonDecorator() if args.style == 'hexes' else CrowsFootDecorator()
 	drawing = HexagonalGrid(document_properties, hexagon_properties, decorator).draw()
 
 	if args.output:
