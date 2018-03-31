@@ -3,7 +3,6 @@
 import argparse
 import math
 
-from svgwrite.container import Style
 from svgwrite.drawing import Drawing
 
 class DocumentProperties:
@@ -41,6 +40,9 @@ class HexagonDecorator:
 		polygon = drawing.polygon(hexagon.verticies)
 		drawing.add(polygon)
 
+	def style(self, drawing):
+		return '* { fill: none; stroke: #000000; stroke-width: 1 }'
+
 class CrowsFootDecorator:
 	def __init__(self):
 		self._dash = .25
@@ -56,6 +58,9 @@ class CrowsFootDecorator:
 		dash_end = (point_a[0]*self._gap + point_b[0]*self._dash, point_a[1]*self._gap + point_b[1]*self._dash)
 		line = drawing.line(start=point_a, end=dash_end)
 		drawing.add(line)
+
+	def style(self):
+		return '* { stroke: #000000; stroke-linecap: round; stroke-width: 1 }'
 
 class HexagonalGrid:
 	def __init__(self, document_properties, hexagon_properties, decorator):
@@ -84,7 +89,7 @@ class HexagonalGrid:
 
 	def draw(self):
 		drawing = Drawing(size=(self._document_properties.width, self._document_properties.height))
-		drawing.add(Style(content='* { fill: none; stroke: #000000; stroke-linecap: round; stroke-width: 1 }'))
+		drawing.add(drawing.style(content=self._decorator.style()))
 
 		for column, x in enumerate(self._columns()):
 			for y in self._rows(column):
