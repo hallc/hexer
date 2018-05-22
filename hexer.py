@@ -40,7 +40,7 @@ class HexagonDecorator:
 		polygon = drawing.polygon(hexagon.verticies)
 		drawing.add(polygon)
 
-	def style(self, drawing):
+	def style(self):
 		return '* { fill: none; stroke: #000000; stroke-width: 1 }'
 
 class CrowsFootDecorator:
